@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="idea" viewBox="0 0 32 32">
+    <path d="M12 23h8m-7 4h6M11 20c-2-2-3-4-3-7a8 8 0 0 1 16 0c0 3-1 5-3 7l-1 2h-8zM16 2v2M3 13h2m22 0h2M6 4l2 2m18-2-2 2"/>
+  </symbol>
+  <symbol id="forms" viewBox="0 0 32 32">
+    <path d="M3 7h11v11H3zM18 5l10 6-10 6zM16 22a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+  </symbol>
+  <symbol id="rhythm" viewBox="0 0 32 32">
+    <path d="M26 12a10 10 0 0 0-18-3M6 20a10 10 0 0 0 18 3M7 3v7h7m11 19v-7h-7"/>
+  </symbol>
+  <symbol id="place" viewBox="0 0 32 32">
+    <path d="M3 14 16 4l13 10v14H3zM11 28v-9h10v9M8 14h3m10 0h3"/>
+  </symbol>
+  <symbol id="maker" viewBox="0 0 32 32">
+    <path d="M7 26 23 10l-1-4 4-1 2 5-2 3L10 29l-5-1zM6 19l7-7m-6 0 5 5m10 3 3 3M20 24l3 3"/>
+  </symbol>
+  <symbol id="contact" viewBox="0 0 32 32">
+    <path d="M5 6h22v16H15l-7 5v-5H5zM10 13h12m-12 4h8"/>
+  </symbol>
+  <symbol id="game" viewBox="0 0 32 32">
+    <path d="M9 11h14c4 0 5 3 6 10 1 5-2 6-5 3l-4-4h-8l-4 4c-3 3-6 2-5-3 1-7 2-10 6-10zM8 16h7m-3.5-3.5v7M21 16h.1m4 2h.1"/>
+  </symbol>
+  <symbol id="boardgame" viewBox="0 0 32 32">
+    <path d="M5 5h22v22H5zM16 5v22M5 16h22M8 8h4v4H8zm12 12h4v4h-4z"/>
+  </symbol>
+  <symbol id="math" viewBox="0 0 32 32">
+    <path d="M5 26V7m0 19h23M9 20l6-5 4 2 8-9M23 8h4v4"/>
+  </symbol>
+</svg>

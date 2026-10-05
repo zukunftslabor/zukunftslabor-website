@@ -1,0 +1,78 @@
+name: Deploy website to All-Inkl
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: all-inkl-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout website
+        uses: actions/checkout@v4
+      - name: Prepare website files only
+        run: |
+          mkdir -p "$RUNNER_TEMP/website"
+          cp index.html styles.css script.js "$RUNNER_TEMP/website/"
+          cp -R assets fonts "$RUNNER_TEMP/website/"
+      - name: Install FTP client
+        run: sudo apt-get update -qq && sudo apt-get install -y lftp
+      - name: Upload with verified encrypted FTP
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PATH: ${{ secrets.FTP_PATH }}
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, tempfile, urllib.parse
+          keys = ['FTP_HOST', 'FTP_USERNAME', 'FTP_PASSWORD', 'FTP_PATH']
+          if any(not os.environ.get(k) for k in keys):
+              raise SystemExit('A required FTP secret is missing.')
+          host = os.environ['FTP_HOST'].strip()
+          if '://' not in host:
+              host = 'ftp://' + host
+          parsed = urllib.parse.urlsplit(host)
+          if parsed.scheme not in ('ftp', 'ftps') or not parsed.hostname or parsed.username or parsed.password:
+              raise SystemExit('FTP_HOST must be an FTP hostname or URL without credentials.')
+          def quote(value):
+              if any(c in value for c in '\r\n\0'):
+                  raise SystemExit('Invalid control character in FTP configuration.')
+              return '"' + value.replace('\\', '\\\\').replace('"', '\\"').replace('$', '\\$').replace('`', '\\`') + '"'
+          source = str(pathlib.Path(os.environ['RUNNER_TEMP']) / 'website')
+          commands = '\n'.join([
+              'set cmd:fail-exit yes',
+              'set net:timeout 20',
+              'set net:max-retries 2',
+              'set ftp:ssl-force yes',
+              'set ftp:ssl-protect-data yes',
+              'set ssl:verify-certificate yes',
+              'open ' + quote(host),
+              'user ' + quote(os.environ['FTP_USERNAME']) + ' ' + quote(os.environ['FTP_PASSWORD']),
+              'mirror --reverse --parallel=2 ' + quote(source) + ' ' + quote(os.environ['FTP_PATH']),
+              'bye',
+          ])
+          with tempfile.NamedTemporaryFile(mode='w', dir=os.environ['RUNNER_TEMP'], prefix='lftp-', delete=False) as f:
+              f.write(commands)
+              script = f.name
+          try:
+              subprocess.run(['lftp', '-f', script], check=True)
+          finally:
+              os.unlink(script)
+          print('Website upload completed; no remote files deleted.')
+          PY
+      - name: Verify public website
+        run: |
+          curl --fail --retry 6 --retry-delay 10 --retry-all-errors --max-time 25 \
+            https://zukunftslabor.infinita-schule.de/ -o "$RUNNER_TEMP/live.html"
+          grep -q 'id="hero-title"' "$RUNNER_TEMP/live.html"
+          echo 'Public domain serves the Zukunftslabor website.'
